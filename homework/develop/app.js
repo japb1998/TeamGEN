@@ -9,11 +9,9 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
-const {
-    create
-} = require("domain");
-const { throws } = require("assert");
+//employees array to be passed to the render function
 let employees = [];
+//array of functions to be used when iquirer is called
 const managerQuestions = [{
         type: 'input',
         message: "what's the Employee name?",
@@ -23,8 +21,10 @@ const managerQuestions = [{
         type: 'input',
         message: "What's the Employee ID?",
         name: 'ID',
-        validate: function(value){
-            if(!isNaN(value)){ return true} else{
+        validate: function (value) {
+            if (!isNaN(value)) {
+                return true
+            } else {
                 return 'it needs to be a number'
             }
         }
@@ -33,11 +33,24 @@ const managerQuestions = [{
         type: 'input',
         message: "What's the Employee E-mail?",
         name: 'email',
+        validate: function (res) {
+            const emailValid = (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
+            if (res.match(emailValid)) {
+                return true
+            } else {
+                return 'Invalid E-mail format'
+            }
+        }
     },
     {
         type: 'input',
         message: "What's the Employee Office number?",
         name: 'office',
+        validate: function(res){
+             if(res.match(/^[0-9a-zA-Z]+$/)){
+                 return true
+             } return 'Only numbers and letters allowed'
+        }
     }, {
         type: 'confirm',
         message: 'ADD another employee',
@@ -45,7 +58,7 @@ const managerQuestions = [{
         default: false,
     },
 ];
-
+//array of questions for interns and engineers
 const questions = [{
         type: 'list',
         message: "What's the employee position",
@@ -61,8 +74,10 @@ const questions = [{
         type: 'input',
         message: "What's the Employee ID?",
         name: 'id',
-        validate: function(value){
-            if(!isNaN(value)){ return true} else{
+        validate: function (value) {
+            if (!isNaN(value)) {
+                return true
+            } else {
                 return 'it needs to be a number'
             }
         }
@@ -71,6 +86,14 @@ const questions = [{
         type: 'input',
         message: "What's the Employee E-mail?",
         name: 'email',
+        validate: function (res) {
+            const emailValid = (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
+            if (res.match(emailValid)) {
+                return true
+            } else {
+                return 'Invalid E-mail format'
+            }
+        }
     },
     {
         type: 'input',
@@ -95,16 +118,18 @@ const questions = [{
         default: false,
     },
 ];
-
-const createHtml = () =>{
+//FUNCTION TO RENDER THE HTML FILE IF IT DOES NOT EXIST IT CREATES IT
+const createHtml = () => {
     const newHtml = render(employees);
-
-fs.writeFile('./index.html',newHtml,(err)=>{
-    if(err){
-        throw err
-    }
-})
+    if(fs.existsSync(OUTPUT_DIR)){
+    fs.writeFile(outputPath, newHtml, (err) => {
+        if (err) {
+            throw err
+        }}) } else{
+        fs.mkdirSync('output');
+        }
 };
+//FUNCTION TO BE FIRED ONLY WHEN WE WANT TO ADD MORE EMPLOYEES NOT INCLUDING THE MANAGER
 const addEmployee = () => {
     inquirer.prompt(questions).then((res) => {
         if (res.position === 'Intern') {
@@ -117,31 +142,30 @@ const addEmployee = () => {
         if (res.add) {
             addEmployee();
         } else {
-            console.log(employees);
+            // console.log(employees);
             createHtml()
         }
     })
 }
 
-
-const ask =()=> {
+//FUNCTION ASK TO START OUR APP WITH INQUIRER PROMPTS
+const ask = () => {
     inquirer.prompt(managerQuestions).then((res) => {
         const newManager = new Manager(res.name, res.id, res.email, res.office);
         employees.push(newManager);
 
         if (res.add) {
             addEmployee();
-        } else{
-            console.log(employees)
+        } else {
+            // console.log(employees)
             createHtml();
         }
-        
+
     })
-    
+
 
 }
 ask();
-
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
