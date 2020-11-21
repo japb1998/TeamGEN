@@ -20,7 +20,7 @@ const managerQuestions = [{
     {
         type: 'input',
         message: "What's the Employee ID?",
-        name: 'ID',
+        name: 'id',
         validate: function (value) {
             if (!isNaN(value)) {
                 return true
@@ -127,6 +127,10 @@ const createHtml = () => {
             throw err
         }}) } else{
         fs.mkdirSync('output');
+        fs.writeFile(outputPath, newHtml, (err) => {
+            if (err) {
+                throw err
+            }})
         }
 };
 //FUNCTION TO BE FIRED ONLY WHEN WE WANT TO ADD MORE EMPLOYEES NOT INCLUDING THE MANAGER
